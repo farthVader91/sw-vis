@@ -3,18 +3,41 @@
     <link rel="stylesheet" type="text/css" href="/static/style.css">
     <meta id='my-data' data-name="{{vehicle_speeds}}">
     <script src="/static/jquery-1.12.3.min.js"></script>
+    <script src="/static/d3.min.js"></script>
 </head>
 <body>
 <title>Hello from Flask</title>
 <h1>Hello there!</h1>
-<svg width="300" height="100">
-  <rect x="0" y="0"  height="25" width="233.33" />
-  <rect x="0" y="25" height="25" width="200" />
-  <rect x="0" y="50" height="25" width="300" />
+<svg width="500" height="300">
 <svg>
 
 <script type="text/javascript">
     var vehicleSpeeds = $('#my-data').data().name;
-    console.log(vehicleSpeeds);
+    var svg = d3.select('svg');
+    var rects = svg.selectAll('rect').data(vehicleSpeeds);
+    var newRects = rects.enter();
+    var maxSpeed = d3.max(vehicleSpeeds, function(d, i) {
+        return d.speed;
+    });
+    var minSpeed = d3.min(vehicleSpeeds, function(d, i) {
+        return d.speed;
+    });
+    var x = d3.scale.linear()
+        .range([0, 500])
+        .domain([minSpeed, maxSpeed]);
+    var y = d3.scale.ordinal()
+        .rangeRoundBands([0, 300])
+        .domain(vehicleSpeeds.map(function(d, i) {
+            return d.vehicle;
+        }));
+    newRects.append('rect')
+        .attr('x', x(0))
+        .attr('y', function(d, i) {
+            return y(d.vehicle);
+        })
+        .attr('height', y.rangeBand())
+        .attr('width', function(d, i) {
+            return x(d.speed);
+        })
 </script>
 </body>
